@@ -52,3 +52,16 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+bin/
+obj/
+.vs/
+.git/
+docker-compose*
+docker-compose.override.yml
+*.md
+*.user
+*.suo
+*.csproj.user
+*.pdb
+*.cache
