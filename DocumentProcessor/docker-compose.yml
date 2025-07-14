@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  documentprocessor.api:
+    image: ${DOCKER_REGISTRY-}documentprocessorapi
+    build:
+      context: .
+      dockerfile: DocumentProcessor.API/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - documentprocessor.master
+      - documentprocessor.worker
+      - rabbitmq
+
+  documentprocessor.master:
+    image: ${DOCKER_REGISTRY-}documentprocessormaster
+    build:
+      context: .
+      dockerfile: DocumentProcessor.Master/Dockerfile
+    depends_on:
+      - rabbitmq
+
+  documentprocessor.worker:
+    image: ${DOCKER_REGISTRY-}documentprocessorworker
+    build:
+      context: .
+      dockerfile: DocumentProcessor.Worker/Dockerfile
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
