@@ -24,10 +24,7 @@ public class ProcessStartedTestConsumer : IConsumer<ProcessStartedTestEvent>
             Files = new[] { "file1.txt", "file2.txt" }
         };
 
-        var destinationAddress = new Uri("queue:process-files-queue");
-
-        var endpoint = await context.GetSendEndpoint(destinationAddress);
-        await endpoint.Send(command);
+        await context.Publish(command);
 
         _logger.LogInformation("Sent command ProcessFilesTestSlaveCommand for ProcessId: {ProcessId}", command.ProcessId);
     }
