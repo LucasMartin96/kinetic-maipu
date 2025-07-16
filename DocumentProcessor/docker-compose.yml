@@ -29,6 +29,15 @@ services:
     depends_on:
       - rabbitmq
 
+  documentprocessor.writer:
+    image: ${DOCKER_REGISTRY-}documentprocessorwriter
+    build:
+      context: .
+      dockerfile: DocumentProcessor.Writer/Dockerfile
+    depends_on:
+      - rabbitmq
+      - mysql
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
