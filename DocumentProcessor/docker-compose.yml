@@ -12,6 +12,7 @@ services:
       - documentprocessor.master
       - documentprocessor.worker
       - rabbitmq
+      - mysql
 
   documentprocessor.master:
     image: ${DOCKER_REGISTRY-}documentprocessormaster
@@ -20,6 +21,7 @@ services:
       dockerfile: DocumentProcessor.Master/Dockerfile
     depends_on:
       - rabbitmq
+      - mysql
 
   documentprocessor.worker:
     image: ${DOCKER_REGISTRY-}documentprocessorworker
@@ -28,7 +30,8 @@ services:
       dockerfile: DocumentProcessor.Worker/Dockerfile
     depends_on:
       - rabbitmq
-
+      - mysql
+  
   documentprocessor.writer:
     image: ${DOCKER_REGISTRY-}documentprocessorwriter
     build:
@@ -46,3 +49,20 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
+
+  mysql:
+    image: mysql:8.0
+    container_name: documentprocessor_mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: documentprocessor
+      MYSQL_USER: dpuser
+      MYSQL_PASSWORD: dppass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
