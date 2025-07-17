@@ -1,14 +1,25 @@
-﻿using Serilog;
+﻿using DocumentProcessor.Dao;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// TODO: Mover instalacion de servicios a otro archivo.Tipo instalacion de extensiones
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .CreateLogger();
 
 builder.Host.UseSerilog();
-// TODO: Mover instalacion de servicios a otro archivo.
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<DocumentDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+
+
 builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
@@ -39,6 +50,13 @@ app.MapControllers();
 
 try
 {
+    Log.Information("API - Trying to apply migrations...");
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<DocumentDbContext>();
+        dbContext.Database.Migrate();
+    }
+
     Log.Information("API starting...");
     app.Run();
 }
