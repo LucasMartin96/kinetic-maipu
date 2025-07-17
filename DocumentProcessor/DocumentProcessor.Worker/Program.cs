@@ -5,9 +5,8 @@ using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File("logs/master/log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/Worker/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
-
 try
 {
 
