@@ -12,6 +12,7 @@
         public DateTime? CompletedAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string FolderPath { get; set; } = string.Empty;
         public List<FileDTO> Files { get; set; } = new();
     }
 }

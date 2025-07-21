@@ -26,7 +26,8 @@ namespace DocumentProcessor.Dao.Repository
                 FailedFiles = 0,
                 SkippedFiles = 0,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                FolderPath = processDto.FolderPath
             };
 
             _context.Processes.Add(entity);

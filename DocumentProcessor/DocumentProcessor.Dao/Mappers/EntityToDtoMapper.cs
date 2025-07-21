@@ -10,7 +10,7 @@ namespace DocumentProcessor.Dao.Mappers
         {
             if (entity == null) return null!;
 
-            return new ProcessDTO
+            var dto = new ProcessDTO
             {
                 ProcessId = entity.ProcessId,
                 Status = entity.Status,
@@ -20,8 +20,10 @@ namespace DocumentProcessor.Dao.Mappers
                 SkippedFiles = entity.SkippedFiles,
                 CreatedAt = entity.CreatedAt,
                 UpdatedAt = entity.UpdatedAt,
+                FolderPath = entity.FolderPath,
                 Files = entity.Files?.Select(f => ToDto(f)).ToList() ?? new List<FileDTO>()
             };
+            return dto;
         }
 
         public static FileDTO ToDto(Entities.File entity)

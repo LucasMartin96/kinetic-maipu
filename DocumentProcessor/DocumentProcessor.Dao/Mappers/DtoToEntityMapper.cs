@@ -16,6 +16,7 @@ namespace DocumentProcessor.Dao.Mappers
                 CompletedFiles = dto.CompletedFiles,
                 FailedFiles = dto.FailedFiles,
                 SkippedFiles = dto.SkippedFiles,
+                FolderPath = dto.FolderPath,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
                 Files = dto.Files?.Select(f => ToEntity(f)).ToList() ?? new List<Entities.File>()

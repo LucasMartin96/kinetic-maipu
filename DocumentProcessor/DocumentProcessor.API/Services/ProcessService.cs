@@ -41,12 +41,15 @@ namespace DocumentProcessor.API.Services
                 Status = "PENDING",
                 TotalFiles = textFiles.Length,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                FolderPath = Path.GetRelativePath("/app/documents", request.FolderPath).Replace("\\", "/")
             };
 
             var processId = await _processRepository.CreateProcessAsync(processDto);
 
-            var fileNames = textFiles.Select(Path.GetFileName).ToList();
+            var root = request.FolderPath;
+            var fileNames = textFiles.Select(f => Path.GetRelativePath("/app/documents", f).Replace("\\", "/")).ToList();
+
             await _publishEndpoint.Publish(new ProcessStartedEvent
             {
                 ProcessId = processId,

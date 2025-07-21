@@ -25,7 +25,11 @@ public class DocumentDbContext : DbContext
 
             entity.Property(p => p.Status)
                 .IsRequired()
-                .HasMaxLength(20);
+                .HasMaxLength(64);
+
+            entity.Property(p => p.FolderPath)
+                .IsRequired()
+                .HasMaxLength(255);
 
             entity.Property(p => p.StartedAt)
                 .HasColumnType("datetime(6)");
