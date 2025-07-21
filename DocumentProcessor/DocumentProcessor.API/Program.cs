@@ -1,4 +1,7 @@
 ﻿using DocumentProcessor.Dao;
+using DocumentProcessor.Dao.Interfaces;
+using DocumentProcessor.Dao.Repository;
+using DocumentProcessor.API.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -18,7 +21,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<DocumentDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+builder.Services.AddScoped<IApiProcessRepository, ApiProcessRepository>();
 
+builder.Services.AddScoped<IProcessService, ProcessService>();
 
 builder.Services.AddMassTransit(x =>
 {
