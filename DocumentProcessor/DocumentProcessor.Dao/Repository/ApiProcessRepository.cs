@@ -20,7 +20,7 @@ namespace DocumentProcessor.Dao.Repository
         {
             var entity = new Process
             {
-                ProcessId = Guid.NewGuid(),
+                ProcessId = processDto.ProcessId,
                 Status = processDto.Status ?? ProcessStatus.Pending,
                 TotalFiles = processDto.TotalFiles,
                 CompletedFiles = 0,

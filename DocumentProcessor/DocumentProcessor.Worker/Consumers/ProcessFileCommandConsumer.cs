@@ -50,7 +50,7 @@ public class ProcessFileCommandConsumer : IConsumer<ProcessFileCommand>
                     Reason = "First file processing started or file processing in progress."
                 });
 
-                var filePath = Path.Combine("/app/documents", fileName);
+                var filePath = Path.Combine("/app/documents", processId.ToString(), fileName);
                 
                 var content = await _fileReader.ReadFileAsync(filePath);
                 var result = await _textProcessor.ProcessTextAsync(content);

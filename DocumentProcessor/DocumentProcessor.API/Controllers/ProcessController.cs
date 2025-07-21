@@ -21,16 +21,16 @@ namespace DocumentProcessor.API.Controllers
         /// Start a new document processing process
         /// </summary>
         [HttpPost("start")]
-        public async Task<IActionResult> StartProcess([FromBody] ProcessStartRequest request)
+        public async Task<IActionResult> StartProcess([FromForm] ProcessStartRequest request)
         {
             try
             {
-                if (request == null)
+                if (request == null || request.Files == null || request.Files.Count == 0)
                 {
-                    return BadRequest(new { Error = "Request body is required" });
+                    return BadRequest(new { Error = "At least one file is required" });
                 }
 
-                var result = await _processService.StartProcessAsync(request);
+                var result = await _processService.StartProcessAsync(request.Files);
                 return Ok(result);
             }
             catch (ArgumentException ex)

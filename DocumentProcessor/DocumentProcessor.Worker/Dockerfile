@@ -26,5 +26,5 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY ["DocumentProcessor.Worker/config", "/app/config"]
-COPY ["test-files", "/app/documents"]
+RUN mkdir -p /app/documents && chmod 777 /app/documents
 ENTRYPOINT ["dotnet", "DocumentProcessor.Worker.dll"]

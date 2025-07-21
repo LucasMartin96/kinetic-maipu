@@ -12,10 +12,14 @@ services:
       - documents_data:/app/documents
       - logs_data:/app/logs
     depends_on:
-      - documentprocessor.master
-      - documentprocessor.worker
-      - rabbitmq
-      - mysql
+      documentprocessor.master:
+        condition: service_started
+      documentprocessor.worker:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
   documentprocessor.master:
     image: ${DOCKER_REGISTRY-}documentprocessormaster
@@ -25,8 +29,10 @@ services:
     volumes:
       - logs_data:/app/logs
     depends_on:
-      - rabbitmq
-      - mysql
+      rabbitmq:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
   documentprocessor.worker:
     image: ${DOCKER_REGISTRY-}documentprocessorworker
@@ -37,8 +43,10 @@ services:
       - documents_data:/app/documents
       - logs_data:/app/logs
     depends_on:
-      - rabbitmq
-      - mysql
+      rabbitmq:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
   
   documentprocessor.writer:
     image: ${DOCKER_REGISTRY-}documentprocessorwriter
@@ -48,8 +56,10 @@ services:
     volumes:
       - logs_data:/app/logs
     depends_on:
-      - rabbitmq
-      - mysql
+      rabbitmq:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -59,6 +69,12 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   mysql:
     image: mysql:8.0
@@ -73,6 +89,12 @@ services:
       MYSQL_ROOT_PASSWORD: rootpass
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "dpuser", "-pdppass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   mysql_data:

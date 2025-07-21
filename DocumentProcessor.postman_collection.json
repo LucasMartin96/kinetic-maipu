@@ -1,0 +1,157 @@
+{
+	"info": {
+		"_postman_id": "cc2cbdfa-1109-4138-a149-b106931351ad",
+		"name": "DocumentProcessor",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9446608"
+	},
+	"item": [
+		{
+			"name": "ProcessStart",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "Files",
+							"type": "file",
+							"src": [
+								"/C:/Users/luks_/OneDrive/Escritorio/Prueba Tecnica Maipu/kinetic-maipu/DocumentProcessor/test_files/crimen_y_castigo.txt",
+								"/C:/Users/luks_/OneDrive/Escritorio/Prueba Tecnica Maipu/kinetic-maipu/DocumentProcessor/test_files/don_quijote.txt",
+								"/C:/Users/luks_/OneDrive/Escritorio/Prueba Tecnica Maipu/kinetic-maipu/DocumentProcessor/test_files/el_arte_de_amar.txt",
+								"/C:/Users/luks_/OneDrive/Escritorio/Prueba Tecnica Maipu/kinetic-maipu/DocumentProcessor/test_files/el_paraiso_de_las_muejres.txt"
+							]
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:14282/process/start",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "14282",
+					"path": [
+						"process",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessStop",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:14154/Process/stop/406ecd35-10ec-42ac-915c-04777b44a503",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "14154",
+					"path": [
+						"Process",
+						"stop",
+						"406ecd35-10ec-42ac-915c-04777b44a503"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessStatus",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:{{port}}/Process/status/406ecd35-10ec-42ac-915c-04777b44a503",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"Process",
+						"status",
+						"406ecd35-10ec-42ac-915c-04777b44a503"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessList",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:{{port}}/Process/list",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"Process",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessResult",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:{{port}}/Process/results/9a056e60-dd1f-4d5b-861b-a57cb99f1486",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"Process",
+						"results",
+						"9a056e60-dd1f-4d5b-861b-a57cb99f1486"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "port",
+			"value": "14282",
+			"type": "string"
+		}
+	]
+}

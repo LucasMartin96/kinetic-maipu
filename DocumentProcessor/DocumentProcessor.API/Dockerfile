@@ -27,4 +27,5 @@ RUN dotnet publish "./DocumentProcessor.API.csproj" -c $BUILD_CONFIGURATION -o /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /app/documents && chmod 777 /app/documents
 ENTRYPOINT ["dotnet", "DocumentProcessor.API.dll"]

@@ -24,42 +24,70 @@ namespace DocumentProcessor.API.Services
             _logger = logger;
         }
 
-        public async Task<ProcessStartResult> StartProcessAsync(ProcessStartRequest request)
+        public async Task<ProcessStartResult> StartProcessAsync(List<IFormFile> files)
         {
-            // Validar que la carpeta existe
-            if (string.IsNullOrEmpty(request.FolderPath) || !Directory.Exists(request.FolderPath))
-                throw new ArgumentException("Invalid folder path");
+            if (files == null || files.Count == 0)
+                throw new ArgumentException("At least one file is required");
 
-            // Buscar archivos .txt en la carpeta
-            var textFiles = Directory.GetFiles(request.FolderPath, "*.txt");
-            if (textFiles.Length == 0)
-                throw new ArgumentException("No text files found in the specified folder");
+            if (files.Count > 50)
+                throw new ArgumentException("Maximum 50 files allowed per process");
 
-            // Crear DTO de proceso con estado inicial PENDING
+            var allowedExtensions = new[] { ".txt", ".md", ".csv" };
+            foreach (var file in files)
+            {
+                if (file.Length == 0)
+                    throw new ArgumentException($"File {file.FileName} is empty");
+
+                if (file.Length > 10 * 1024 * 1024) 
+                    throw new ArgumentException($"File {file.FileName} exceeds maximum size of 10MB");
+
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                    throw new ArgumentException($"File {file.FileName} has unsupported extension. Allowed: {string.Join(", ", allowedExtensions)}");
+
+                if (string.IsNullOrWhiteSpace(file.FileName))
+                    throw new ArgumentException("File name cannot be empty");
+            }
+
+            var totalSize = files.Sum(f => f.Length);
+            if (totalSize > 100 * 1024 * 1024) 
+                throw new ArgumentException("Total file size exceeds limit of 100MB");
+
+            var processId = Guid.NewGuid();
+            var processFolder = Path.Combine("/app/documents", processId.ToString());
+            Directory.CreateDirectory(processFolder);
+
+            var fileNames = new List<string>();
+            foreach (var file in files)
+            {
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                var filePath = Path.Combine(processFolder, uniqueFileName);
+                
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+                
+                fileNames.Add(uniqueFileName);
+            }
+
             var processDto = new ProcessDTO
             {
-                ProcessId = Guid.NewGuid(),
+                ProcessId = processId,
                 Status = "PENDING",
-                TotalFiles = textFiles.Length,
+                TotalFiles = files.Count,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                FolderPath = Path.GetRelativePath("/app/documents", request.FolderPath).Replace("\\", "/")
+                FolderPath = processId.ToString() // Guardar solo el processId como folder path
             };
 
-            // Guardar proceso en base de datos
-            var processId = await _processRepository.CreateProcessAsync(processDto);
+            await _processRepository.CreateProcessAsync(processDto);
 
-            // Normalizar paths de archivos para publicar
-            var fileNames = textFiles.Select(f => Path.GetRelativePath("/app/documents", f).Replace("\\", "/")).ToList();
-
-            // Publicar evento para iniciar procesamiento (Saga)
             await _publishEndpoint.Publish(new ProcessStartedEvent
             {
                 ProcessId = processId,
                 FileNames = fileNames
             });
 
-            _logger.LogInformation("Process {ProcessId} started successfully with {FileCount} files", processId, textFiles.Length);
+            _logger.LogInformation("Process {ProcessId} started successfully with {FileCount} files", processId, files.Count);
 
             return new ProcessStartResult
             {
@@ -92,13 +120,11 @@ namespace DocumentProcessor.API.Services
             if (process == null)
                 throw new KeyNotFoundException("Process not found");
 
-            // Contar archivos procesados (COMPLETED o FAILED)
             var processedFiles = process.Files?.Count(f => f.Status == "COMPLETED" || f.Status == "FAILED") ?? 0;
             var percentage = process.TotalFiles > 0 ? (processedFiles * 100) / process.TotalFiles : 0;
 
             DateTime? estimatedCompletion = null;
 
-            // Calcular estimación solo si proceso está corriendo o finalizado y hay datos para calcular promedio
             if ((process.Status == ProcessStatus.Running || process.Status == ProcessStatus.Completed)
                 && processedFiles > 1 && process.StartedAt.HasValue)
             {
@@ -116,7 +142,7 @@ namespace DocumentProcessor.API.Services
                         var estimatedRemainingTime = TimeSpan.FromMilliseconds(avg * remainingFiles);
                         var ect = DateTime.UtcNow.Add(estimatedRemainingTime);
 
-                        // No mostrar estimado si es mayor a 24 horas (podría ser inválido)
+                        // No mostrar estimado si es mayor a 24 horas (podrï¿½a ser invï¿½lido)
                         estimatedCompletion = ect > DateTime.UtcNow.AddHours(24) ? null : ect;
                     }
                 }
@@ -177,7 +203,7 @@ namespace DocumentProcessor.API.Services
             var totalWords = completedFiles.Sum(f => f.WordCount);
             var totalLines = completedFiles.Sum(f => f.LineCount);
 
-            // TODO: Idealmente estos cálculos deberían hacerse en el worker o cachearse en DB para evitar costo runtime.
+            // TODO: Idealmente estos cï¿½lculos deberï¿½an hacerse en el worker o cachearse en DB para evitar costo runtime.
             var allFrequentWords = completedFiles
                 .SelectMany(f =>
                 {

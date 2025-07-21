@@ -5,35 +5,35 @@ namespace DocumentProcessor.API.Services
     public interface IProcessService
     {
         /// <summary>
-        /// Inicia un nuevo proceso a partir de un directorio con archivos .txt.
-        /// Valida la carpeta, crea la entrada en base de datos y publica el evento de inicio.
+        /// Inicia un nuevo proceso a partir de archivos subidos directamente.
+        /// Valida los archivos, los guarda en el sistema y publica el evento de inicio.
         /// </summary>
-        /// <param name="request">Contiene la ruta de la carpeta a procesar</param>
+        /// <param name="files">Lista de archivos a procesar</param>
         /// <returns>Resultado con el ID del proceso</returns>
-        Task<ProcessStartResult> StartProcessAsync(ProcessStartRequest request);
+        Task<ProcessStartResult> StartProcessAsync(List<IFormFile> files);
 
         /// <summary>
-        /// Detiene un proceso en ejecución, siempre que no haya finalizado aún.
+        /// Detiene un proceso en ejecuciÃ³n, siempre que no haya finalizado aÃºn.
         /// </summary>
         /// <param name="processId">ID del proceso</param>
         /// <returns>True si se detuvo correctamente</returns>
         Task<bool> StopProcessAsync(Guid processId);
 
         /// <summary>
-        /// Obtiene el estado actual del proceso, porcentaje de avance y tiempo estimado de finalización.
+        /// Obtiene el estado actual del proceso, porcentaje de avance y tiempo estimado de finalizaciÃ³n.
         /// </summary>
         /// <param name="processId">ID del proceso</param>
         /// <returns>Objeto con el estado y progreso</returns>
         Task<ProcessStatusResponse> GetProcessStatusAsync(Guid processId);
 
         /// <summary>
-        /// Lista todos los procesos existentes ordenados por fecha de creación.
+        /// Lista todos los procesos existentes ordenados por fecha de creaciÃ³n.
         /// </summary>
-        /// <returns>Lista de resúmenes de procesos</returns>
+        /// <returns>Lista de resÃºmenes de procesos</returns>
         Task<List<ProcessSummary>> ListProcessesAsync();
 
         /// <summary>
-        /// Obtiene las métricas finales del proceso (palabras, líneas, palabras frecuentes, etc).
+        /// Obtiene las mÃ©tricas finales del proceso (palabras, lÃ­neas, palabras frecuentes, etc).
         /// Solo disponible si el proceso fue completado.
         /// </summary>
         /// <param name="processId">ID del proceso</param>
