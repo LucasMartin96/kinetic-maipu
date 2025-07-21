@@ -27,6 +27,12 @@ public class DocumentDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(20);
 
+            entity.Property(p => p.StartedAt)
+                .HasColumnType("datetime(6)");
+
+            entity.Property(p => p.CompletedAt)
+                .HasColumnType("datetime(6)");
+
             entity.Property(p => p.CreatedAt)
                 .HasColumnType("datetime(6)")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
