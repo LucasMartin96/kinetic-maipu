@@ -44,6 +44,13 @@ public class ProcessFileCommandConsumer : IConsumer<ProcessFileCommand>
                     throw new ArgumentException("Process ID cannot be empty");
                 }
 
+                await context.Publish(new UpdateProcessStatusCommand
+                {
+                    ProcessId = processId,
+                    NewStatus = "RUNNING",
+                    Reason = "First file processing started or file processing in progress."
+                });
+
                 var filePath = Path.Combine("/app/documents", fileName);
                 
                 var content = await _fileReader.ReadFileAsync(filePath);

@@ -29,8 +29,16 @@ public class UpdateProcessStatusCommandConsumer : IConsumer<UpdateProcessStatusC
             var process = await _writerRepository.GetProcessByIdAsync(message.ProcessId);
             if (process == null)
             {
-                _logger.LogWarning("Process not found: ProcessId={ProcessId}", message.ProcessId);
+                _logger.LogWarning("Process not found: {ProcessId}", message.ProcessId);
                 return;
+            }
+            if (process.Status == "PENDING" && message.NewStatus == "RUNNING")
+            {
+                process.Status = "RUNNING";
+                if (process.StartedAt == default)
+                    process.StartedAt = DateTime.UtcNow;
+                await _writerRepository.UpdateProcessAsync(process);
+                _logger.LogInformation("Process {ProcessId} status set to RUNNING and StartedAt set.", process.ProcessId);
             }
 
             var files = await _writerRepository.GetFilesByProcessIdAsync(message.ProcessId);
