@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 namespace DocumentProcessor.Dao;
 public class DocumentDbContext : DbContext
 {
-    // TODO: Para tener un poco mas de control, tengo que ver de implementar en los update y los create actualizaciones de timestamps en created at y updated at -.-
     public DocumentDbContext(DbContextOptions<DocumentDbContext> options) : base(options)
     {
     }
