@@ -4,6 +4,7 @@ using DocumentProcessor.Dao;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentProcessor.Dao.Migrations
 {
     [DbContext(typeof(DocumentDbContext))]
-    partial class DocumentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250720201902_AddProcessTimestamps")]
+    partial class AddProcessTimestamps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
