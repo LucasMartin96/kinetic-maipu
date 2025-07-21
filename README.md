@@ -116,18 +116,46 @@ Nota: Más info sobre diseño en `architecture.md`
 
 ## Escalabilidad
 
-### Cambios Clave para Escalar a Millones de Documentos Diarios
+# Estrategias de Escalabilidad y Resiliencia para el Sistema de Procesamiento de Documentos
 
-1. **Escalamiento del Writer con idempotencia**: Uso de claves únicas.
-2. **Persistencia del estado del Saga**: En base de datos transaccional.
-3. **Monitoreo y métricas en tiempo real**: Throughput, DLQ, retries.
+## 1. Escalamiento del Writer con idempotencia
+**Motivación**: El Writer es un punto central en el sistema y actualmente está limitado a una única instancia. Con una carga de millones de documentos, esto se convierte rápidamente en un cuello de botella y un único punto de fallo.  
+**Propuesta**: Aplicar una estrategia de idempotencia mediante claves únicas compuestas (`ProcessId`, `FileId`, `Timestamp`) en las operaciones críticas de escritura.  
+**Resultado esperado**: Se pueden levantar múltiples instancias del Writer en paralelo sin riesgo de escrituras duplicadas o inconsistentes, lo cual permite escalar horizontalmente de forma segura.
 
-### Infraestructura Escalable
+## 2. Persistencia del estado del Saga
+**Motivación**: Hoy el estado del proceso está en memoria. Si el Master se cae o reinicia, se pierde completamente el seguimiento del proceso y los archivos involucrados.  
+**Propuesta**: Persistir el estado del Saga en una base de datos transaccional (MySQL/PostgreSQL), usando una tabla dedicada con índices sobre `CorrelationId` y `CurrentState`.  
+**Resultado esperado**: Se puede escalar horizontalmente el Coordinador (Master), ya que cualquier instancia puede retomar el estado del proceso. Además, se soportan reinicios sin pérdida de información.
 
-- **Mensajería**: RabbitMQ clúster / Amazon MQ / Azure Service Bus
-- **Contenedores y orquestación**: Kubernetes (EKS, AKS) o AWS ECS
-- **Base de datos escalable**: Aurora, Azure SQL Hyperscale, Cosmos DB
-- **Archivos y logs**: Amazon S3 / Azure Blob Storage
+## 3. Monitoreo y métricas en tiempo real
+**Motivación**: Es difícil diagnosticar problemas o anticipar cuellos de botella si no hay visibilidad sobre lo que ocurre internamente en el sistema.  
+**Propuesta**: Integrar Prometheus para recolección de métricas (procesos activos, tiempos promedio, colas en retry/DLQ) y Grafana para visualización. También se recomienda exponer métricas custom vía endpoints `/metrics`.  
+**Resultado esperado**: Mejora en la observabilidad del sistema. Permite detectar anomalías de forma proactiva y ajustar dinámicamente la cantidad de instancias según demanda real.
+
+---
+
+# Infraestructura y Tecnologías para Escalar
+
+## Mensajería confiable y tolerante a fallos
+**Situación actual**: RabbitMQ funciona en modo single-node. Si el nodo falla, hay riesgo de pérdida de mensajes en vuelo.  
+**Propuesta**: Desplegar RabbitMQ en modo clúster o usar servicios administrados como Amazon MQ o Azure Service Bus, que manejan replicación y failover automáticamente.  
+**Ventajas técnicas**: Alta disponibilidad, durabilidad de mensajes, balanceo automático de carga entre nodos del clúster.
+
+## Contenedores y orquestación
+**Situación actual**: Docker Compose funciona bien para desarrollo, pero no es viable en entornos productivos con múltiples servicios y necesidad de auto-escalado.  
+**Propuesta**: Migrar a Kubernetes (EKS, AKS) o ECS con auto-scaling basado en métricas de CPU, RAM o métricas personalizadas de negocio (como throughput).  
+**Ventajas técnicas**: Control de versiones, escalado automático según carga, reinicio automático de pods fallidos, rolling updates sin downtime.
+
+## Base de datos escalable
+**Situación actual**: Se usa una instancia única de MySQL, lo que limita la concurrencia y disponibilidad.  
+**Propuesta**: Usar soluciones como Amazon Aurora o Azure SQL Hyperscale que permiten escalado horizontal, réplicas de lectura y failover automático.  
+**Ventajas técnicas**: Soporte para escrituras concurrentes a gran escala, menor latencia en lecturas, resiliencia ante fallos de instancia.
+
+## Almacenamiento de archivos y logs
+**Situación actual**: Los archivos procesados se guardan en volúmenes locales del contenedor, lo cual impide escalar y no es resiliente.  
+**Propuesta**: Almacenar los archivos en buckets como Amazon S3 o Azure Blob Storage, y configurar una CDN si se requiere distribución global.  
+**Ventajas técnicas**: Almacenamiento prácticamente ilimitado, redundancia automática, bajo costo por GB, accesible desde cualquier región.
 
 ## Política de Uso de IA
 
