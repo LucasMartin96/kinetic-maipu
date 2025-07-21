@@ -2,6 +2,7 @@ using DocumentProcessor.Master.Interfaces;
 
 namespace DocumentProcessor.Master.Services;
 
+/// <inheritdoc />
 public class RetryPolicy : IResilienceRetryPolicy
 {
     private readonly ILogger<RetryPolicy> _logger;
@@ -25,22 +26,22 @@ public class RetryPolicy : IResilienceRetryPolicy
             try
             {
                 attempt++;
-                _logger.LogDebug("Executing {OperationName} - Attempt {Attempt}/{MaxRetries}", 
+                _logger.LogDebug("Executing {OperationName} - Attempt {Attempt}/{MaxRetries}",
                     operationName, attempt, _maxRetries + 1);
-                
+
                 return await operation();
             }
             catch (Exception ex) when (IsTransientException(ex) && attempt <= _maxRetries)
             {
-                _logger.LogWarning(ex, "Transient failure in {OperationName} - Attempt {Attempt}/{MaxRetries}. Retrying in {Delay}ms", 
+                _logger.LogWarning(ex, "Transient failure in {OperationName} - Attempt {Attempt}/{MaxRetries}. Retrying in {Delay}ms",
                     operationName, attempt, _maxRetries + 1, delay.TotalMilliseconds);
-                
+
                 await Task.Delay(delay);
-                delay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds * 2); // Con dos andamos
+                delay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds * 2); // Backoff exponencial
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Permanent failure in {OperationName} after {Attempt} attempts", 
+                _logger.LogError(ex, "Permanent failure in {OperationName} after {Attempt} attempts",
                     operationName, attempt);
                 throw;
             }
@@ -49,6 +50,7 @@ public class RetryPolicy : IResilienceRetryPolicy
 
     public async Task ExecuteAsync(Func<Task> operation, string operationName)
     {
+        // Adapta el método void a la versión genérica
         await ExecuteAsync(async () =>
         {
             await operation();
@@ -56,6 +58,9 @@ public class RetryPolicy : IResilienceRetryPolicy
         }, operationName);
     }
 
+    /// <summary>
+    /// Determina si una excepción es transitoria (ej. red, timeout).
+    /// </summary>
     private static bool IsTransientException(Exception ex)
     {
         return ex is TimeoutException ||
@@ -64,4 +69,4 @@ public class RetryPolicy : IResilienceRetryPolicy
                ex.Message.Contains("connection", StringComparison.OrdinalIgnoreCase) ||
                ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase);
     }
-} 
+}

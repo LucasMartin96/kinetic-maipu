@@ -1,4 +1,5 @@
 ﻿using DocumentProcessor.Contracts.Dtos;
+using DocumentProcessor.Contracts;
 using DocumentProcessor.Dao.Entities;
 using DocumentProcessor.Dao.Interfaces;
 using DocumentProcessor.Dao.Mappers;
@@ -20,7 +21,7 @@ namespace DocumentProcessor.Dao.Repository
             var entity = new Process
             {
                 ProcessId = Guid.NewGuid(),
-                Status = processDto.Status ?? "PENDING",
+                Status = processDto.Status ?? ProcessStatus.Pending,
                 TotalFiles = processDto.TotalFiles,
                 CompletedFiles = 0,
                 FailedFiles = 0,

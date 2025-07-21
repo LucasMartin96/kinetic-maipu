@@ -2,6 +2,7 @@ using DocumentProcessor.Contracts.Commands;
 using DocumentProcessor.Contracts.Events;
 using DocumentProcessor.Worker.Interfaces;
 using MassTransit;
+using DocumentProcessor.Contracts;
 
 namespace DocumentProcessor.Worker.Consumers;
 
@@ -45,7 +46,7 @@ public class ProcessFileCommandConsumer : IConsumer<ProcessFileCommand>
                 await context.Publish(new UpdateProcessStatusCommand
                 {
                     ProcessId = processId,
-                    NewStatus = "RUNNING",
+                    NewStatus = ProcessStatus.Running,
                     Reason = "First file processing started or file processing in progress."
                 });
 

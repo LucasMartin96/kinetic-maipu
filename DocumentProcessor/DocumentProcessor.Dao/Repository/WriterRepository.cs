@@ -1,4 +1,5 @@
 ﻿using DocumentProcessor.Contracts.Dtos;
+using DocumentProcessor.Contracts;
 using DocumentProcessor.Dao.Interfaces;
 using DocumentProcessor.Dao.Mappers;
 using Microsoft.EntityFrameworkCore;
@@ -78,7 +79,7 @@ namespace DocumentProcessor.Dao.Repository
             entity.UpdatedAt = DateTime.UtcNow;
             entity.StartedAt = process.StartedAt ?? entity.StartedAt;
 
-            if (process.Status == "COMPLETED")
+            if (process.Status == ProcessStatus.Completed)
             {
                 entity.CompletedAt = DateTime.UtcNow;
             }

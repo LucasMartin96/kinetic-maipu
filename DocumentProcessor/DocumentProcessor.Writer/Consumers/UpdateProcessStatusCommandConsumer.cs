@@ -1,5 +1,6 @@
 using MassTransit;
 using DocumentProcessor.Contracts.Commands;
+using DocumentProcessor.Contracts;
 using DocumentProcessor.Dao.Interfaces;
 
 namespace DocumentProcessor.Writer.Consumers;
@@ -32,7 +33,7 @@ public class UpdateProcessStatusCommandConsumer : IConsumer<UpdateProcessStatusC
                 _logger.LogWarning("Process not found: {ProcessId}", message.ProcessId);
                 return;
             }
-            if (process.Status == "PENDING" && message.NewStatus == "RUNNING")
+            if (process.Status == ProcessStatus.Pending && context.Message.NewStatus == ProcessStatus.Running)
             {
                 process.Status = "RUNNING";
                 if (process.StartedAt == default)
@@ -43,8 +44,8 @@ public class UpdateProcessStatusCommandConsumer : IConsumer<UpdateProcessStatusC
 
             var files = await _writerRepository.GetFilesByProcessIdAsync(message.ProcessId);
             // TODO: aca el enum!!!
-            var completedFiles = files.Count(f => f.Status == "COMPLETED");
-            var failedFiles = files.Count(f => f.Status == "FAILED");
+            var completedFiles = files.Count(f => f.Status == ProcessStatus.Completed);
+            var failedFiles = files.Count(f => f.Status == ProcessStatus.Failed);
 
             process.Status = message.NewStatus;
             process.CompletedFiles = completedFiles;

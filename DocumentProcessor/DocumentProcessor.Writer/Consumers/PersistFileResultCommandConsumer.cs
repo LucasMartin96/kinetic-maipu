@@ -1,6 +1,7 @@
 using MassTransit;
 using DocumentProcessor.Contracts.Commands;
 using DocumentProcessor.Contracts.Events;
+using DocumentProcessor.Contracts;
 using DocumentProcessor.Dao.Interfaces;
 
 namespace DocumentProcessor.Writer.Consumers;
@@ -38,7 +39,7 @@ public class PersistFileResultCommandConsumer : IConsumer<PersistFileResultComma
             file.UpdatedAt = DateTime.UtcNow;
 
             // TODO: implementar un enum 
-            if (message.Status == "COMPLETED")
+            if (message.Status == ProcessStatus.Completed)
             {
                 file.WordCount = message.WordCount;
                 file.LineCount = message.LineCount;
@@ -46,7 +47,7 @@ public class PersistFileResultCommandConsumer : IConsumer<PersistFileResultComma
                 file.MostFrequentWords = string.Join(", ", message.MostFrequentWords);
                 file.Summary = message.Summary;
             }
-            else if (message.Status == "FAILED")
+            else if (message.Status == ProcessStatus.Failed)
             {
                 file.ErrorMessage = message.ErrorMessage;
             }

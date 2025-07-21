@@ -1,9 +1,11 @@
-﻿namespace DocumentProcessor.Contracts.Dtos
+﻿using DocumentProcessor.Contracts;
+
+namespace DocumentProcessor.Contracts.Dtos
 {
     public class ProcessDTO
     {
         public Guid ProcessId { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; set; } = ProcessStatus.Pending;
         public int TotalFiles { get; set; }
         public int CompletedFiles { get; set; }
         public int FailedFiles { get; set; }

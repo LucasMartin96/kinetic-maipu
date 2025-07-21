@@ -1,10 +1,11 @@
 ﻿namespace DocumentProcessor.Dao.Entities;
+using DocumentProcessor.Contracts;
 public class File
 {
     public Guid FileId { get; set; }
     public Guid ProcessId { get; set; }
     public string FileName { get; set; } = string.Empty;
-    public string Status { get; set; } = "PENDING";
+    public string Status { get; set; } = ProcessStatus.Pending;
     public int WordCount { get; set; }
     public int LineCount { get; set; }
     public int CharacterCount { get; set; }

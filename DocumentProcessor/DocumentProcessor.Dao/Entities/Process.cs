@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DocumentProcessor.Contracts;
 
 namespace DocumentProcessor.Dao.Entities;
 public class Process
@@ -7,7 +8,7 @@ public class Process
 
 
     [MaxLength(64)]
-    public string Status { get; set; } = "PENDING";
+    public string Status { get; set; } = ProcessStatus.Pending;
     public int TotalFiles { get; set; }
     public int CompletedFiles { get; set; } = 0;
     public int FailedFiles { get; set; } = 0;
