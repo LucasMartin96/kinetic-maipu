@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentProcessor.Writer", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentProcessor.Dao", "DocumentProcessor.Dao\DocumentProcessor.Dao.csproj", "{6570AEB9-6381-49CB-8E40-B2A1B34A34D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleStressTests", "SimpleStressTests\SimpleStressTests.csproj", "{6B8A2690-EB10-491F-BF5D-B3266BE0071E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{6570AEB9-6381-49CB-8E40-B2A1B34A34D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6570AEB9-6381-49CB-8E40-B2A1B34A34D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6570AEB9-6381-49CB-8E40-B2A1B34A34D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B8A2690-EB10-491F-BF5D-B3266BE0071E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B8A2690-EB10-491F-BF5D-B3266BE0071E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B8A2690-EB10-491F-BF5D-B3266BE0071E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B8A2690-EB10-491F-BF5D-B3266BE0071E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
