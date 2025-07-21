@@ -76,6 +76,7 @@ namespace DocumentProcessor.Dao.Repository
             entity.FailedFiles = process.FailedFiles;
             entity.SkippedFiles = process.SkippedFiles;
             entity.UpdatedAt = DateTime.UtcNow;
+            entity.StartedAt = process.StartedAt ?? entity.StartedAt;
 
             if (process.Status == "COMPLETED")
             {
