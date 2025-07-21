@@ -25,4 +25,6 @@ RUN dotnet publish "./DocumentProcessor.Worker.csproj" -c $BUILD_CONFIGURATION -
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ["DocumentProcessor.Worker/config", "/app/config"]
+COPY ["test-files", "/app/documents"]
 ENTRYPOINT ["dotnet", "DocumentProcessor.Worker.dll"]
