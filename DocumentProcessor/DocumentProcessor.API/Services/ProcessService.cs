@@ -95,22 +95,36 @@ namespace DocumentProcessor.API.Services
                 throw new KeyNotFoundException("Process not found");
             }
 
-            var processedFiles = process.CompletedFiles + process.FailedFiles;
+           
+            var processedFiles = process.Files?.Count(f => f.Status == "COMPLETED" || f.Status == "FAILED") ?? 0;
             var percentage = process.TotalFiles > 0 ? (processedFiles * 100) / process.TotalFiles : 0;
 
             DateTime? estimatedCompletion = null;
-            if (process.Status == "RUNNING" && processedFiles > 0 && process.StartedAt.HasValue)
+            if ((process.Status == "RUNNING" || process.Status == "COMPLETED") && processedFiles > 1 && process.StartedAt.HasValue)
             {
-                var elapsedTime = DateTime.UtcNow - process.StartedAt.Value;
-                var averageTimePerFile = elapsedTime.TotalMilliseconds / processedFiles;
-                var remainingFiles = process.TotalFiles - processedFiles;
-                var estimatedRemainingTime = TimeSpan.FromMilliseconds(averageTimePerFile * remainingFiles);
-                estimatedCompletion = DateTime.UtcNow.Add(estimatedRemainingTime);
+                var files = process.Files?.Where(f => f.Status == "COMPLETED" || f.Status == "FAILED")
+                    .OrderBy(f => f.UpdatedAt)
+                    .ToList() ?? new List<FileDTO>();
+                if (files.Count > 1)
+                {
+                    var elapsedTime = files.Last().UpdatedAt - process.StartedAt.Value;
+                    var avg = elapsedTime.TotalMilliseconds / files.Count;
+                    if (avg > 0)
+                    {
+                        var remainingFiles = process.TotalFiles - processedFiles;
+                        var estimatedRemainingTime = TimeSpan.FromMilliseconds(avg * remainingFiles);
+                        var ect = DateTime.UtcNow.Add(estimatedRemainingTime);
+                        estimatedCompletion = ect > DateTime.UtcNow.AddHours(24) ? null : ect;
+                    }
+                }
             }
             else if (process.Status == "COMPLETED" && process.CompletedAt.HasValue)
             {
                 estimatedCompletion = process.CompletedAt.Value;
             }
+
+            _logger.LogInformation("Status: {Status}, ProcessedFiles: {ProcessedFiles}, StartedAt: {StartedAt}, ECT: {ECT}",
+                process.Status, processedFiles, process.StartedAt, estimatedCompletion);
 
             return new ProcessStatusResponse
             {
