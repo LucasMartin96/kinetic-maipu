@@ -8,6 +8,9 @@ services:
       dockerfile: DocumentProcessor.API/Dockerfile
     ports:
       - "5000:80"
+    volumes:
+      - documents_data:/app/documents
+      - logs_data:/app/logs
     depends_on:
       - documentprocessor.master
       - documentprocessor.worker
@@ -19,6 +22,8 @@ services:
     build:
       context: .
       dockerfile: DocumentProcessor.Master/Dockerfile
+    volumes:
+      - logs_data:/app/logs
     depends_on:
       - rabbitmq
       - mysql
@@ -28,6 +33,9 @@ services:
     build:
       context: .
       dockerfile: DocumentProcessor.Worker/Dockerfile
+    volumes:
+      - documents_data:/app/documents
+      - logs_data:/app/logs
     depends_on:
       - rabbitmq
       - mysql
@@ -37,6 +45,8 @@ services:
     build:
       context: .
       dockerfile: DocumentProcessor.Writer/Dockerfile
+    volumes:
+      - logs_data:/app/logs
     depends_on:
       - rabbitmq
       - mysql
@@ -66,3 +76,5 @@ services:
 
 volumes:
   mysql_data:
+  documents_data:
+  logs_data:
