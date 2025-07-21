@@ -11,12 +11,10 @@ namespace DocumentProcessor.Master
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("Master service started");
+            
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (_logger.IsEnabled(LogLevel.Information))
-                {
-                    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                }
                 await Task.Delay(1000, stoppingToken);
             }
         }

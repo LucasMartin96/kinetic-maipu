@@ -1,14 +1,25 @@
 using DocumentProcessor.Dao;
+using DocumentProcessor.Dao.Entities;
 using DocumentProcessor.Master;
 using DocumentProcessor.Master.Consumers;
+using DocumentProcessor.Master.Saga;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Polly;
 using Serilog;
+using Serilog.Events;
+
+Directory.CreateDirectory("logs");
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("logs/master/log.txt", rollingInterval: RollingInterval.Day)
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("System", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] MASTER: {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File("logs/document-processor.log", 
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7,
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] MASTER: {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 
@@ -30,7 +41,12 @@ try
 
             services.AddMassTransit(x =>
             {
+                // TODO: Usamos en memoria porque hay problemitas de dependencias con Pomelo... mover a mysql
+                x.AddSagaStateMachine<ProcessSagaStateMachine, ProcessSagaState>()
+                    .InMemoryRepository();
+
                 x.AddConsumer<ProcessStartedTestConsumer>();
+
                 x.UsingRabbitMq((ctx, cfg) =>
                 {
                     cfg.Host("rabbitmq", "/", h =>
@@ -39,7 +55,12 @@ try
                         h.Password("password");
                     });
 
-                    cfg.ReceiveEndpoint("process-started-queue", e =>
+                    cfg.ReceiveEndpoint("process-saga", e =>
+                    {
+                        e.ConfigureSaga<ProcessSagaState>(ctx);
+                    });
+
+                    cfg.ReceiveEndpoint("test-events", e =>
                     {
                         e.ConfigureConsumer<ProcessStartedTestConsumer>(ctx);
                     });
