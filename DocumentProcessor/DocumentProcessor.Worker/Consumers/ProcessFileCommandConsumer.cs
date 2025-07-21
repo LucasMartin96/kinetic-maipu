@@ -1,7 +1,5 @@
 using DocumentProcessor.Contracts.Commands;
 using DocumentProcessor.Contracts.Events;
-using DocumentProcessor.Worker.Services;
-using DocumentProcessor.Worker.Models;
 using DocumentProcessor.Worker.Interfaces;
 using MassTransit;
 
