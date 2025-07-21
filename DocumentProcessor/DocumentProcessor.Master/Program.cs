@@ -2,7 +2,9 @@ using DocumentProcessor.Dao;
 using DocumentProcessor.Dao.Entities;
 using DocumentProcessor.Master;
 using DocumentProcessor.Master.Consumers;
+using DocumentProcessor.Master.Interfaces;
 using DocumentProcessor.Master.Saga;
+using DocumentProcessor.Master.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -39,6 +41,7 @@ try
                ServerVersion.AutoDetect(connectionString))
             );
 
+            services.AddScoped<IServiceLocator, ServiceLocator>();
             services.AddMassTransit(x =>
             {
                 // TODO: Usamos en memoria porque hay problemitas de dependencias con Pomelo... mover a mysql
