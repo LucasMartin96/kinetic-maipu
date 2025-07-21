@@ -42,6 +42,10 @@ try
             );
 
             services.AddScoped<IServiceLocator, ServiceLocator>();
+            services.AddScoped<IProcessSagaService, ProcessSagaService>();
+            services.AddScoped<IResilienceRetryPolicy, RetryPolicy>();
+            services.AddScoped<ITimeoutHandler, TimeoutHandler>();
+
             services.AddMassTransit(x =>
             {
                 // TODO: Usamos en memoria porque hay problemitas de dependencias con Pomelo... mover a mysql
