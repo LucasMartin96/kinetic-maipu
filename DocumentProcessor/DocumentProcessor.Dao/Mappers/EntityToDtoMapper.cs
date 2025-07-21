@@ -20,6 +20,7 @@ namespace DocumentProcessor.Dao.Mappers
                 SkippedFiles = entity.SkippedFiles,
                 CreatedAt = entity.CreatedAt,
                 UpdatedAt = entity.UpdatedAt,
+                StartedAt = entity.StartedAt,
                 FolderPath = entity.FolderPath,
                 Files = entity.Files?.Select(f => ToDto(f)).ToList() ?? new List<FileDTO>()
             };
