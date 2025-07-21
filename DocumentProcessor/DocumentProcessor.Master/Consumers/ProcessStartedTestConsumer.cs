@@ -1,8 +1,5 @@
 ﻿using DocumentProcessor.Contracts.TestsRecords;
 using MassTransit;
-using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace DocumentProcessor.Master.Consumers;
 public class ProcessStartedTestConsumer : IConsumer<ProcessStartedTestEvent>
